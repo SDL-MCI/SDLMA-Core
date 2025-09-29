@@ -6,3 +6,4 @@ pandas~=2.2.3
 bitstring~=4.3.0
 h5py~=3.13.0
 pyuff~=2.5.1
+setuptools~=80.9.0

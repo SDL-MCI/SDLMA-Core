@@ -175,17 +175,6 @@ class SDLMAUFF:
                     f.write("\n")
                 f.write("    -1\n")
 
-    # def __np_array_helper(self, val, length):
-    #     """
-    #
-    #     :param val:
-    #     :param length:
-    #     :return:
-    #     """
-    #     arr = []
-    #     for i in range(length):
-    #         arr.append(val)
-    #     return np.array(arr)
 
     def write_frfs(self, sdlma_ema: object, mp_to_node: dict):
         """
@@ -304,3 +293,6 @@ class SDLMAUFF:
                 dataset["eig"] = 0.0 + freq * 2j * math.pi
                 self.pyuff._write_set(dataset, "add")
 
+    def get_points(self):
+        data = self.pyuff.read_sets()
+        return data
