@@ -67,7 +67,6 @@ class SDLMAChannel:
             self.channel_info["max_val"] = (
                 self.voltage_range[1] / self.channel_info["sens_ref"]
             )
-            print(self.channel_info["sens_ref"])
         else:
             raise ValueError("No hw_teds, vi_teds or sensor info given")
 
