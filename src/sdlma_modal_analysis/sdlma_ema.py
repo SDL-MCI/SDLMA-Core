@@ -1,3 +1,4 @@
+import os
 from dataclasses import asdict
 
 import h5py
@@ -222,6 +223,8 @@ class SDLMAEMA:
         Method to export the object to a h5 datastore
         :param filename: The full path to the file!
         """
+        if os.path.splitext(filename)[1] != ".h5":
+            filename += ".h5"
         with h5py.File(filename, "w") as h5_file:
             h5_file.attrs["lower"] = self.lower
             h5_file.attrs["upper"] = self.upper
