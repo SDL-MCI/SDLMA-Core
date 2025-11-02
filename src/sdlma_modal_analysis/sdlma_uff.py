@@ -175,7 +175,6 @@ class SDLMAUFF:
                     f.write("\n")
                 f.write("    -1\n")
 
-
     def write_frfs(self, sdlma_ema: object, mp_to_node: dict):
         """
         Method to write frfs into the uff file!

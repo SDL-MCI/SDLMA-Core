@@ -20,6 +20,8 @@ class SDLMATimeSeriesSEP005:
     quantity: str
     name: str
     direction: str
+    comment: str
+    serial_number: str
 
     @staticmethod
     def from_array(
@@ -29,6 +31,8 @@ class SDLMATimeSeriesSEP005:
         quantity: str,
         names: list[str],
         directions: list[str],
+        comments: list[str],
+        serial_numbers: list[str],
     ) -> list[dict]:
         time_series_list = []
         for i in range(arr.shape[0]):
@@ -39,6 +43,8 @@ class SDLMATimeSeriesSEP005:
                 quantity,
                 names[i],
                 directions[i],
+                comments[i],
+                serial_numbers[i],
             )
             time_series_list.append(asdict(time_series))
         return time_series_list
@@ -155,6 +161,8 @@ class SDLMAMeasurement:
                 "quantity": out["quantity"],
                 "name": out["name"],
                 "direction": out["direction"],
+                "comment": out["comment"],
+                "serial_number": out["serial_number"],
             }
             out_list.append(data)
         return out_list
@@ -192,6 +200,12 @@ class SDLMAMeasurement:
                     quantity = sig_grp.attrs["quantity"]
                     sig_name = sig_grp.attrs["name"]
                     sig_direction = sig_grp.attrs["direction"]
+                    sig_comment = ""
+                    sig_serial_number = ""
+                    if "comment" in sig_grp.attrs:
+                        sig_comment = sig_grp.attrs["comment"]
+                    if "serial_number" in sig_grp.attrs:
+                        sig_serial_number = sig_grp.attrs["serial_number"]
                     time_series = SDLMATimeSeriesSEP005(
                         data=data,
                         unit_str=unit_str,
@@ -199,6 +213,8 @@ class SDLMAMeasurement:
                         quantity=quantity,
                         name=sig_name,
                         direction=sig_direction,
+                        comment=sig_comment,
+                        serial_number=sig_serial_number,
                     )
                     container.append(asdict(time_series))
         return SDLMAMeasurement(
@@ -274,3 +290,7 @@ class SDLMAMeasurement:
                     sig_grp.attrs["quantity"] = measurement["quantity"]
                     sig_grp.attrs["name"] = measurement["name"]
                     sig_grp.attrs["direction"] = measurement["direction"]
+                    sig_grp.attrs["comment"] = measurement["comment"]
+                    sig_grp.attrs["serial_number"] = measurement[
+                        "serial_number"
+                    ]

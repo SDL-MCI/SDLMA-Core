@@ -33,6 +33,8 @@ class SDLMAChannel:
         self.channel_info = {}
         self.is_resp = False
         self.direction = "+Z"
+        self.comment = ""
+        self.serial_number = ""
         self.voltage_range = voltage_range
         self.disp_name = ""
 
@@ -55,10 +57,12 @@ class SDLMAChannel:
             )
             self.channel_info = StandardTeds(bitstream).teds
             self.is_resp = self.channel_info["acceleration_force"].val == 0
+            self.serial_number = str(self.channel_info["serial_number"].val)
         elif teds_file_path:
             bitstream = StandardTeds.read_bitstream_from_file(teds_file_path)
             self.channel_info = StandardTeds(bitstream, has_preamble=True).teds
             self.is_resp = self.channel_info["acceleration_force"].val == 0
+            self.serial_number = str(self.channel_info["serial_number"].val)
         elif teds_info:
             self.channel_info = teds_info
             self.channel_info["min_val"] = (

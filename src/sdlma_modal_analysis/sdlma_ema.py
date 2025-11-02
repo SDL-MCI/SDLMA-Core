@@ -189,6 +189,12 @@ class SDLMAEMA:
                             if ("direction" not in signal.attrs)
                             else signal.attrs["direction"]
                         )
+                        sig_comment = ""
+                        sig_serial_number = ""
+                        if "comment" in sig_grp.attrs:
+                            sig_comment = sig_grp.attrs["comment"]
+                        if "serial_number" in sig_grp.attrs:
+                            sig_serial_number = sig_grp.attrs["serial_number"]
                         time_series = SDLMATimeSeriesSEP005(
                             data=data,
                             unit_str=unit_str,
@@ -196,6 +202,8 @@ class SDLMAEMA:
                             quantity=quantity,
                             name=sig_name,
                             direction=direction,
+                            comment=sig_comment,
+                            serial_number=sig_serial_number,
                         )
                         container.append(asdict(time_series))
                 measurements.append(
@@ -256,3 +264,5 @@ class SDLMAEMA:
                         grp.attrs["quantity"] = signal["quantity"]
                         grp.attrs["name"] = signal["name"]
                         grp.attrs["direction"] = signal["direction"]
+                        grp.attrs["comment"] = signal["comment"]
+                        grp.attrs["serial_number"] = signal["serial_number"]
