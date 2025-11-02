@@ -63,6 +63,7 @@ class SDLMAChannel:
             self.channel_info = StandardTeds(bitstream, has_preamble=True).teds
             self.is_resp = self.channel_info["acceleration_force"].val == 0
             self.serial_number = str(self.channel_info["serial_number"].val)
+            self.channel_info["sens_ref"] = self.channel_info["sens_ref"].val
         elif teds_info:
             self.channel_info = teds_info
             self.channel_info["min_val"] = (
@@ -288,3 +289,9 @@ class SDLMAHardware:
                 return False, []
             else:
                 raise exc  # Unknown Error - Reraise
+
+    @staticmethod
+    def reset_devices():
+        system = System().local()
+        for device in system.devices:
+            device.reset_device()
