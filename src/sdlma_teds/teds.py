@@ -15,7 +15,6 @@ from .teds_element import (
 
 
 class StandardTeds:
-
     ni_preamble = hex(0xDA6E0CCCBA)
 
     @staticmethod
@@ -48,9 +47,54 @@ class StandardTeds:
         bitstream.pos = 0
         return bitstream
 
+    @staticmethod
+    def standard_accel_force_template(
+        manufacturer_id: int,
+        model_number: int,
+        serial_number: int,
+        acceleration_force: int,
+        sens_ref: float,
+        additional_settings: dict[BasicTedsElement] = None,
+    ):
+        """
+        Function to create a standard teds object for force and acceleration
+        transducers. Template is a 4507B acceleration transducer.
+
+        :param manufacturer_id: The id of the manufacturer.
+        :param model_number: The model number for the transducer
+        :param serial_number: The serial number for the transducer
+        :param acceleration_force: Integer either 0 or 1 that indicates
+        what kind of transducer it is. 0 for accel, 1 for force
+        :param sens_ref: The sensitivity of the transducer in SI units.
+        :param additional_settings: List of additional settings
+        :return: A StandardTeds object
+        """
+        template = BitStream(
+            hex="0xda6e0cccba8803662228909e002601679c22a4d"
+            "a87224894d097620840b68001c000"
+        )
+        standard_teds = StandardTeds(bitstream=template, has_preamble=True)
+        standard_teds.teds["manufacturer_id"].val = manufacturer_id
+        standard_teds.teds["model_number"].val = model_number
+        standard_teds.teds["serial_number"].val = serial_number
+        if not acceleration_force in range(0, 1):
+            raise ValueError("acceleration_force must be 0 or 1")
+        standard_teds.teds["acceleration_force"].val = acceleration_force
+        standard_teds.teds["sens_ref"].val = sens_ref
+        if additional_settings:
+            for key, val in additional_settings:
+                if key in standard_teds.teds:
+                    standard_teds.teds[key] = val
+        return standard_teds
+
     @classmethod
     def write_teds_to_file(cls, teds: dict, filename: str):
+        """
+        Function to write the teds content into a virtual teds file.
 
+        :param teds: The teds data
+        :param filename: The export filename
+        """
         bitstream = BitStream(cls.ni_preamble)
         for key in teds:
             if not isinstance(teds[key], ConstantTedsElement):
