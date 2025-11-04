@@ -4,6 +4,8 @@ from datetime import datetime
 import numpy as np
 import pyuff
 
+from sdlma_modal_analysis.sdlma_ema import SDLMAEMA
+
 
 def direction_to_int(direction_str: str) -> int:
     """
@@ -227,21 +229,12 @@ class SDLMAUFF:
         to the node number
         """
         if 55 not in self.pyuff.get_set_types():
-            resp_list = []
-            j = 0
+            resp_list = self.get_resp_list(sdlma_ema, mp_to_node)
 
-            for measurement in sdlma_ema.measurements:
-                for resp in measurement.resp:
-                    node = mp_to_node[resp["name"]]
-                    resp_list.append((j, node, resp["direction"]))
-                    j += 1
-
-            # Sort by node and channel index
-            resp_list.sort(key=lambda x: (x[1], x[0]))
             for i, freq in enumerate(sdlma_ema.nat_freq):
                 name = f"Mode {i + 1} at {freq} Hz"
                 r1, r2, r3, r4, r5, r6, node_nums = [], [], [], [], [], [], []
-                for j, node, direction in resp_list:
+                for j, node, direction, _ in resp_list:
                     val = sdlma_ema.phi[j][i]
                     x = y = z = 0.0 + 0.0j
 
@@ -269,7 +262,7 @@ class SDLMAUFF:
                     id5=name,
                     analysis_type=3,
                     data_ch=2,
-                    spec_data_type=12,
+                    spec_data_type=8,
                     data_type=5,
                     n_data_per_node=3,
                     r1=r4,
@@ -295,3 +288,71 @@ class SDLMAUFF:
     def get_points(self):
         data = self.pyuff.read_sets()
         return data
+
+    @staticmethod
+    def get_resp_list(sdlma_ema: SDLMAEMA, mp_to_node: dict) -> list:
+        """Helper function to prepare response list for looping and sorting"""
+        resp_list = []
+        j = 0
+        for measurement in sdlma_ema.measurements:
+            for resp in measurement.resp:
+                node = mp_to_node[resp["name"]]
+                resp_list.append((j, node, resp["direction"], resp["fs"]))
+                j += 1
+        # Sort by node and channel index
+        resp_list.sort(key=lambda x: (x[1], x[0]))
+        return resp_list
+
+    @staticmethod
+    def calculate_displacement(
+        sdlma_ema: SDLMAEMA,
+        mp_to_node: dict,
+        idx: int,
+        coords: list,
+        t: float,
+        scale: float,
+    ) -> list:
+        """
+        Function to calculate displacement at a single point in time
+        """
+        resp_list = SDLMAUFF.get_resp_list(sdlma_ema, mp_to_node)
+        deformed_coords = coords.copy()
+        for i, node, direction, sampling_freq in resp_list:
+            val = sdlma_ema.phi[i][idx]
+            xyz = 0
+            if "X" in direction:
+                xyz = 0
+            elif "Y" in direction:
+                xyz = 1
+            elif "Z" in direction:
+                xyz = 2
+            # Convert (Relation taken from Brandt and Ewins from modal
+            # coordinates to cartesian. x(t) = X * e^(s*t)
+            # Just interested in real part.
+            deformed_coords[node - 1][xyz] = coords[node - 1][
+                xyz
+            ] + scale * np.real(val * np.exp(1j * sdlma_ema.nat_freq[idx] * t))
+        return deformed_coords
+
+    @staticmethod
+    def calculate_displacement_period(
+        sdlma_ema: SDLMAEMA,
+        mp_to_node: dict,
+        idx: int,
+        coords: list,
+        steps: int = 500,
+        scale: float = 1,
+    ) -> list:
+        """
+        Function to calculate displacement for a period.
+        """
+        period = (2 * math.pi) / sdlma_ema.nat_freq[idx]
+        time = np.linspace(0, period, steps)
+        deformation_list = []
+        for t in time:
+            deformation_list.append(
+                SDLMAUFF.calculate_displacement(
+                    sdlma_ema, mp_to_node, idx, coords, t, scale=scale
+                )
+            )
+        return deformation_list

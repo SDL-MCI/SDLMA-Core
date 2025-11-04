@@ -292,6 +292,7 @@ class SDLMAHardware:
 
     @staticmethod
     def reset_devices():
+        """Function to reset hardware"""
         system = System().local()
         for device in system.devices:
             device.reset_device()
