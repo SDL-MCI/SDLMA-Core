@@ -163,7 +163,8 @@ class SDLMAUFF:
                     cnt = cnt + 1
                     elem = 94 if len(faces[i]) == 4 else 91
                     f.write(
-                        f"{cnt:10d}{elem:10d}{0:10d}{0:10d}{0:10d}{len(faces[i]):10d}\n"
+                        f"{cnt:10d}{elem:10d}{0:10d}{0:10d}{0:10d}"
+                        f"{len(faces[i]):10d}\n"
                     )
                     for node in faces[i]:
                         f.write(f"{node + 1:10d}")

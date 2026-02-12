@@ -207,7 +207,6 @@ class SDLMANiTask(SDLMATask):
                         channel.name, units=ForceUnits.NEWTONS
                     )
             else:
-
                 if channel.is_resp:
                     self.task.ai_channels.add_ai_accel_chan(
                         channel.name,

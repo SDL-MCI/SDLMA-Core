@@ -77,7 +77,7 @@ class StandardTeds:
         standard_teds.teds["manufacturer_id"].val = manufacturer_id
         standard_teds.teds["model_number"].val = model_number
         standard_teds.teds["serial_number"].val = serial_number
-        if not acceleration_force in range(0, 1):
+        if acceleration_force not in (0, 1):
             raise ValueError("acceleration_force must be 0 or 1")
         standard_teds.teds["acceleration_force"].val = acceleration_force
         standard_teds.teds["sens_ref"].val = sens_ref
@@ -250,7 +250,13 @@ class StandardTeds:
         self.process(td)
 
     def force_no_ext_template(self):
-        raise NotImplementedError()
+        td = {
+        "sens_ref": ConRelResTedsElement(16, 5e-7, 0.00015),
+        "tf_hp_s": ConRelResTedsElement(8, 0.005, 0.03),
+        "stifness": ConRelResTedsElement(6, 1e6, 0.1),
+        "mass_below": ConRelResTedsElement(6, 0.1, 0.1),
+        }
+        self.process(td)
 
     def accelerometer_ext_template(self):
         td = {
@@ -260,22 +266,44 @@ class StandardTeds:
             "passive_function_type": ConstantTedsElement(0, val="0"),
             "passive_function": ConstantTedsElement(0, val="xx,00"),
             "sens_initialize": ConstantTedsElement(0, val="0"),
-            "sens_ctrl_function_mask": ConstantTedsElement(0, val="0"),
+            "sens_ctrl_function_mask": ConstantTedsElement(0, val="0b11"),
             "sens_read_write": ConstantTedsElement(0, val="3"),
             "sens_function_type": ConstantTedsElement(0, val="1"),
             "sens_function_10": ConstantTedsElement(0, val="10"),
             "sens_function_01": ConstantTedsElement(0, val="10"),
             "default_fr": UnIntTedsElement(2),
             "multiplexer_capable": UnIntTedsElement(1),
-            "sens_ref_01": ConRelResTedsElement(16, 5e-7, 1),
-            "sens_ref_10": ConRelResTedsElement(16, 5e-7, 1),
-            "tf_hp_s_01": ConRelResTedsElement(8, 0.005, 1),
-            "tf_hp_s_10": ConRelResTedsElement(8, 0.005, 1),
+            "sens_ref_01": ConRelResTedsElement(16, 5e-7, 0.00015),
+            "sens_ref_10": ConRelResTedsElement(16, 5e-7,  0.00015),
+            "tf_hp_s_01": ConRelResTedsElement(8, 0.005, 0.03),
+            "tf_hp_s_10": ConRelResTedsElement(8, 0.005, 0.03),
         }
         self.process(td)
 
     def force_ext_template(self):
-        raise NotImplementedError()
+        td = {
+            "passive": ConstantTedsElement(0, val="0"),
+            "passive_ctrl_function_mask": ConstantTedsElement(0, val="0b11"),
+            "passive_read_write": ConstantTedsElement(0, val="3"),
+            "passive_function_type": ConstantTedsElement(0, val="0"),
+            "passive_function": ConstantTedsElement(0, val="xx,00"),
+            "sens_initialize": ConstantTedsElement(0, val="0"),
+            "sens_ctrl_function_mask": ConstantTedsElement(0, val="0b11"),
+            "sens_read_write": ConstantTedsElement(0, val="3"),
+            "sens_function_type": ConstantTedsElement(0, val="1"),
+            "sens_function_10": ConstantTedsElement(0, val="10"),
+            "sens_function_01": ConstantTedsElement(0, val="10"),
+            "default_fr": UnIntTedsElement(2),
+            "multiplexer_capable": UnIntTedsElement(1),
+            "sens_ref_01": ConRelResTedsElement(16, 5e-7, 0.00015),
+            "sens_ref_10": ConRelResTedsElement(16, 5e-7,  0.00015),
+            "tf_hp_s_01": ConRelResTedsElement(8, 0.005, 0.03),
+            "tf_hp_s_10": ConRelResTedsElement(8, 0.005, 0.03),
+            "stifness": ConRelResTedsElement(6, 1e6, 0.1),
+            "mass_below": ConRelResTedsElement(6, 0.1, 0.1),
+            "phase_correction": ConResTedsElement(6, -3.2, 0.1),
+        }
+        self.process(td)
 
     def transfer_function_template(self):
         td = {
